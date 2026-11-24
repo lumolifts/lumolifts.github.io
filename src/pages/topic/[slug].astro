@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import QuoteList from "../../components/QuoteList.astro";
+import FollowCta from "../../components/FollowCta.astro";
+import { topics, quotesIn, type Topic } from "../../lib/data";
+
+export function getStaticPaths() {
+  return topics.map((t) => ({ params: { slug: t.slug }, props: { t } }));
+}
+const { t } = Astro.props as { t: Topic };
+const items = quotesIn(t.slug);
+---
+
+<Base
+  title={`${t.roman} Quotes in Urdu | ${t.ur} پر اقوال | LumoLifts`}
+  description={`${items.length} Urdu quotes on ${t.en.toLowerCase()} (${t.roman}), with Roman Urdu and English. ${t.ur} پر بہترین اردو اقوال۔`}
+  path={`/topic/${t.slug}/`}
+>
+  <div class="wrap crumbs"><a href="/quotes/">Quotes</a> › {t.en}</div>
+  <header class="wrap page-head">
+    <h1><span class="ur" lang="ur">{t.ur}</span> · {t.roman} Quotes</h1>
+    <p>Urdu quotes on {t.en.toLowerCase()}, with Roman Urdu and English meaning.</p>
+  </header>
+  <section class="wrap block"><QuoteList items={items} /></section>
+  <section class="wrap block"><FollowCta /></section>
+</Base>

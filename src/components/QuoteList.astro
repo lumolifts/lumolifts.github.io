@@ -1,0 +1,16 @@
+---
+import { quoteUrl, type Quote } from "../lib/data";
+interface Props { items: Quote[] }
+const { items } = Astro.props;
+---
+
+<div class="qlist">
+  {
+    items.map((q) => (
+      <a class="card qitem" href={quoteUrl(q)}>
+        <span class="ur" lang="ur" dir="rtl">{q.ur}</span>
+        <p class="roman">{q.roman}</p>
+      </a>
+    ))
+  }
+</div>

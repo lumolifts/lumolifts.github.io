@@ -1,0 +1,77 @@
+---
+import Base from "../../layouts/Base.astro";
+import QuoteList from "../../components/QuoteList.astro";
+import FollowCta from "../../components/FollowCta.astro";
+import { SITE, quotes, related, topicBySlug, imageUrl, shareText, waLink, quoteUrl, type Quote } from "../../lib/data";
+
+export function getStaticPaths() {
+  return quotes.map((q) => ({ params: { slug: q.slug }, props: { q } }));
+}
+const { q } = Astro.props as { q: Quote };
+const tps = q.topics.map(topicBySlug).filter((t) => t !== undefined);
+const first = tps[0];
+const shortRoman = q.roman.split(" ").slice(0, 8).join(" ");
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Quotation",
+  text: q.ur,
+  inLanguage: "ur",
+  ...(q.source ? { spokenByCharacter: { "@type": "Person", name: q.source } } : {}),
+  url: SITE + quoteUrl(q),
+  image: SITE + imageUrl(q),
+  publisher: { "@type": "Organization", name: "LumoLifts", url: SITE + "/" },
+};
+---
+
+<Base
+  title={`${shortRoman} | Urdu Quote | LumoLifts`}
+  description={`${q.ur} | ${q.roman} | ${q.en}`}
+  path={quoteUrl(q)}
+  image={imageUrl(q)}
+  imageSize={[1080, 1080]}
+  jsonLd={jsonLd}
+>
+  <div class="wrap crumbs">
+    <a href="/quotes/">Quotes</a>{first && <> › <a href={`/topic/${first.slug}/`}>{first.en}</a></>}
+  </div>
+
+  <section class="wrap block" style="padding-top:20px">
+    <div class="card quote" style="margin-bottom:0">
+      <blockquote>
+        <h1 class="ur big" lang="ur" dir="rtl">{q.ur}</h1>
+        <p class="roman">{q.roman}</p>
+        <p class="en">{q.en}</p>
+        {q.source && <p class="source">— {q.source}</p>}
+      </blockquote>
+      <div class="tags">
+        {tps.map((t) => <a class="tag" href={`/topic/${t.slug}/`}>#{t.roman}</a>)}
+      </div>
+      <div class="actions">
+        <button type="button" class="chip" data-copy={shareText(q)}>Copy</button>
+        <a class="chip" target="_blank" rel="noopener" href={waLink(q)}>Share on WhatsApp</a>
+        <a class="chip ghost" href={imageUrl(q)} download={`lumolifts-${q.slug}.png`}>Download image</a>
+      </div>
+    </div>
+  </section>
+
+  {
+    q.video && (
+      <section class="wrap block">
+        <h2 style="text-align:center">Watch the Short</h2>
+        <div class="video">
+          <button type="button" data-yt={q.video} aria-label="Play video">
+            <img src={`https://i.ytimg.com/vi/${q.video}/hqdefault.jpg`} alt="" loading="lazy" />
+            <span class="play" aria-hidden="true">▶</span>
+          </button>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="wrap block">
+    <h2>More quotes like this</h2>
+    <QuoteList items={related(q)} />
+  </section>
+
+  <section class="wrap block"><FollowCta /></section>
+</Base>

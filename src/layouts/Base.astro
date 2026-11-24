@@ -1,0 +1,105 @@
+---
+import "../styles/global.css";
+import { SITE, site_ as site } from "../lib/data";
+
+interface Props {
+  title: string;
+  description: string;
+  path: string; // e.g. "/q/slug/"
+  image?: string; // site-relative, e.g. "/og.png"
+  imageSize?: [number, number];
+  jsonLd?: object;
+}
+const { title, description, path, image = "/og.png", imageSize = [1200, 630], jsonLd } = Astro.props;
+const url = SITE + path;
+const nav = [
+  { href: "/quotes/", label: "Quotes" },
+  { href: "/videos/", label: "Videos" },
+  { href: "/about/", label: "About" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <meta name="theme-color" content="#0A0E28" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LumoLifts" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={SITE + image} />
+    <meta property="og:image:width" content={String(imageSize[0])} />
+    <meta property="og:image:height" content={String(imageSize[1])} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"
+    />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <div class="glows" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+    <header class="wrap top">
+      <a class="brand" href="/" aria-label="LumoLifts home">
+        <img src="/logo.png" alt="" width="40" height="40" />
+        <span class="wordmark">Lumo<b>Lifts</b></span>
+      </a>
+      <nav>
+        {nav.map((n) => <a href={n.href} aria-current={path.startsWith(n.href) ? "page" : undefined}>{n.label}</a>)}
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="wrap foot">
+      <span>© {new Date().getFullYear()} LumoLifts</span>
+      <span>
+        <a href={site.links.youtube} target="_blank" rel="noopener">YouTube</a> ·
+        <a href={site.links.tiktok} target="_blank" rel="noopener">TikTok</a> ·
+        <a href={site.links.facebook} target="_blank" rel="noopener">Facebook</a> ·
+        <a href={"mailto:" + site.email}>{site.email}</a>
+      </span>
+    </footer>
+
+    <script is:inline>
+      // [data-copy] buttons copy their text; [data-yt] buttons swap a thumbnail for the YouTube player.
+      document.addEventListener("click", async (e) => {
+        const copy = e.target.closest("[data-copy]");
+        if (copy) {
+          const label = copy.dataset.label || copy.textContent;
+          copy.dataset.label = label;
+          try {
+            await navigator.clipboard.writeText(copy.dataset.copy);
+            copy.textContent = "Copied ✓";
+          } catch {
+            copy.textContent = "Copy failed";
+          }
+          setTimeout(() => (copy.textContent = label), 1600);
+        }
+        const yt = e.target.closest("[data-yt]");
+        if (yt) {
+          const f = document.createElement("iframe");
+          f.src = "https://www.youtube-nocookie.com/embed/" + yt.dataset.yt + "?autoplay=1&playsinline=1";
+          f.allow = "autoplay; encrypted-media; picture-in-picture";
+          f.allowFullscreen = true;
+          f.title = yt.getAttribute("aria-label") || "Video";
+          yt.replaceWith(f);
+        }
+      });
+    </script>
+  </body>
+</html>

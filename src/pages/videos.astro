@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import VideoGrid from "../components/VideoGrid.astro";
+import FollowCta from "../components/FollowCta.astro";
+import { getVideos } from "../lib/videos";
+const videos = await getVideos();
+---
+
+<Base
+  title="Urdu Motivational Shorts | LumoLifts Videos"
+  description="Short, calm Urdu videos on life lessons, habits and character from LumoLifts. New Shorts every week."
+  path="/videos/"
+>
+  <header class="wrap page-head">
+    <h1>Videos</h1>
+    <p>Our latest Urdu Shorts. Tap one to watch it on YouTube.</p>
+  </header>
+  <section class="wrap block">
+    {videos.length > 0 ? <VideoGrid videos={videos} /> : <p style="text-align:center;color:var(--muted)">New videos are on the way.</p>}
+  </section>
+  <section class="wrap block"><FollowCta /></section>
+</Base>

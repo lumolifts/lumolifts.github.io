@@ -1,0 +1,17 @@
+---
+import type { Video } from "../lib/videos";
+interface Props { videos: Video[] }
+const { videos } = Astro.props;
+---
+
+<div class="grid">
+  {
+    videos.map((v) => (
+      <a class="short" href={`https://www.youtube.com/shorts/${v.id}`} target="_blank" rel="noopener">
+        <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" width="480" height="360" />
+        <span class="play" aria-hidden="true">▶</span>
+        <span class="t" dir="auto">{v.title}</span>
+      </a>
+    ))
+  }
+</div>

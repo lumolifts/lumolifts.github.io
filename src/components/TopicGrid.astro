@@ -1,0 +1,17 @@
+---
+import { topics, quotesIn } from "../lib/data";
+---
+
+<div class="topics">
+  {
+    topics.map((t) => (
+      <a class="card topic" href={`/topic/${t.slug}/`}>
+        <span>
+          <strong>{t.en}</strong>
+          <small>{t.roman} · {quotesIn(t.slug).length} quotes</small>
+        </span>
+        <span class="ur" lang="ur">{t.ur}</span>
+      </a>
+    ))
+  }
+</div>

@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import FollowCta from "../components/FollowCta.astro";
+import { site_ as site } from "../lib/data";
+---
+
+<Base
+  title="About LumoLifts | Urdu Quotes & Life Lessons"
+  description="LumoLifts shares short Urdu quotes and life lessons with calm visuals and soft music, on YouTube, TikTok and Facebook."
+  path="/about/"
+>
+  <header class="wrap page-head">
+    <h1>About <span style="color:var(--gold)">LumoLifts</span></h1>
+    <p class="ur" lang="ur" dir="rtl" style="font-size:24px;color:var(--gold)">روشنی بانٹیں، حوصلہ بڑھائیں</p>
+  </header>
+  <section class="wrap block prose">
+    <p><strong>Lumo</strong> means light, and <strong>Lifts</strong> means lifting someone up. LumoLifts shares short Urdu quotes and life lessons, with calm visuals and soft music, for anyone who needs a small push in the right direction.</p>
+    <p>Every week we post new Shorts on YouTube, TikTok and Facebook. When a quote comes from a poet or writer, we name them. All music is royalty-free and all visuals are our own.</p>
+    <p>Have a quote you love, or a business question? Write to <a href={"mailto:" + site.email} style="color:var(--gold)">{site.email}</a>.</p>
+  </section>
+  <section class="wrap block"><FollowCta /></section>
+</Base>

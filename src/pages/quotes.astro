@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import QuoteList from "../components/QuoteList.astro";
+import TopicGrid from "../components/TopicGrid.astro";
+import { quotes } from "../lib/data";
+---
+
+<Base
+  title="Urdu Quotes on Life, Relationships & Character | اردو اقوال | LumoLifts"
+  description="All LumoLifts Urdu quotes with Roman Urdu and English meaning. Zindagi, rishtay, wafa aur kirdar par behtareen aqwal."
+  path="/quotes/"
+>
+  <header class="wrap page-head">
+    <h1><span class="ur" lang="ur">اردو اقوال</span> · Urdu Quotes</h1>
+    <p>Short lines about life, people and character. Tap any quote to copy it, share it on WhatsApp or download it as an image.</p>
+  </header>
+  <section class="wrap block">
+    <h2>Topics</h2>
+    <TopicGrid />
+  </section>
+  <section class="wrap block">
+    <h2>All quotes</h2>
+    <QuoteList items={quotes} />
+  </section>
+</Base>
