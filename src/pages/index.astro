@@ -1,0 +1,310 @@
+---
+import site from "../data/site.json";
+import quotes from "../data/quotes.json";
+
+type Video = { id: string; title: string; published: string };
+
+const decode = (s: string) =>
+  s.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+const cleanTitle = (t: string) => decode(t).split(" | ")[0].replace(/#\S+/g, "").trim();
+
+// Latest Shorts come from the channel's public RSS feed at build time.
+// The site rebuilds daily (see .github/workflows/deploy.yml), so new uploads show up on their own.
+async function getVideos(): Promise<Video[]> {
+  try {
+    const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${site.channelId}`);
+    if (!res.ok) return [];
+    const xml = await res.text();
+    return xml
+      .split("<entry>")
+      .slice(1)
+      .map((e) => ({
+        id: /<yt:videoId>([^<]+)/.exec(e)?.[1] ?? "",
+        title: cleanTitle(/<title>([^<]*)/.exec(e)?.[1] ?? ""),
+        published: /<published>([^<]+)/.exec(e)?.[1] ?? "",
+      }))
+      .filter((v) => v.id && !site.hideVideos.includes(v.id))
+      .filter((v) => v.published >= site.videosSince || site.extraVideos.includes(v.id))
+      .slice(0, 6);
+  } catch {
+    return [];
+  }
+}
+const videos = await getVideos();
+const q0 = quotes[0];
+
+const title = "LumoLifts | Urdu Quotes & Life Lessons | اردو اقوال";
+const description =
+  "Urdu quotes, life lessons and positive mindset in short, calm videos. اردو اقوال، زندگی کے سبق اور مثبت سوچ۔ New Shorts every week.";
+const url = "https://lumolifts.github.io/";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "LumoLifts",
+  url,
+  logo: url + "icon-512.png",
+  sameAs: [
+    "https://www.youtube.com/@LumoLifts",
+    site.links.tiktok,
+    site.links.facebook,
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <meta name="theme-color" content="#0A0E28" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LumoLifts" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={url + "og.png"} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <div class="glows" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+    <header class="wrap top">
+      <a class="brand" href="/" aria-label="LumoLifts home">
+        <img src="/logo.png" alt="" width="40" height="40" />
+        <span class="wordmark">Lumo<b>Lifts</b></span>
+      </a>
+      <nav>
+        <a href="#quote">Quote</a>
+        <a href="#shorts">Shorts</a>
+        <a href="#follow">Follow</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="wrap hero">
+        <div class="mark"><img src="/logo.png" alt="LumoLifts logo" width="160" height="160" /></div>
+        <h1 class="ur" lang="ur" dir="rtl">روشنی بانٹیں، حوصلہ بڑھائیں</h1>
+        <p class="lead">Urdu quotes, life lessons and a positive mindset, in short, calm videos.</p>
+        <div class="ctas">
+          <a class="btn primary" href={site.links.youtube} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="M10 9l5 3-5 3z" fill="var(--btn-ink)" /></svg>
+            Subscribe on YouTube
+          </a>
+          <a class="btn" href={site.links.tiktok} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h3a4 4 0 0 0 4 4v3a7 7 0 0 1-4-1.3V15a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3z" /></svg>
+            TikTok
+          </a>
+          <a class="btn" href={site.links.facebook} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5H16l.5-3h-3V8.6c0-.9.3-1.6 1.6-1.6h1.6V4.3A21 21 0 0 0 14.4 4C12 4 10.5 5.5 10.5 8.1v2.4H8v3h2.5V21z" /></svg>
+            Facebook
+          </a>
+        </div>
+      </section>
+
+      <section id="quote" class="wrap">
+        <div class="card quote">
+          <p class="label"><span class="ur" lang="ur">آج کا قول</span> · Quote of the day</p>
+          <blockquote>
+            <p id="q-ur" class="ur big" lang="ur" dir="rtl">{q0.ur}</p>
+            <p id="q-roman" class="roman">{q0.roman}</p>
+            <p id="q-en" class="en">{q0.en}</p>
+          </blockquote>
+          <div class="actions">
+            <button type="button" id="q-copy" class="chip">Copy</button>
+            <a id="q-wa" class="chip" target="_blank" rel="noopener" href={"https://wa.me/?text=" + encodeURIComponent(q0.ur + "\n\n" + url)}>Share on WhatsApp</a>
+            <button type="button" id="q-next" class="chip ghost">Next quote →</button>
+          </div>
+        </div>
+      </section>
+
+      {
+        videos.length > 0 && (
+          <section id="shorts" class="wrap">
+            <div class="head">
+              <h2>Latest Shorts</h2>
+              <a class="more" href="https://www.youtube.com/@LumoLifts/shorts" target="_blank" rel="noopener">See all →</a>
+            </div>
+            <div class="grid">
+              {videos.map((v) => (
+                <a class="short" href={`https://www.youtube.com/shorts/${v.id}`} target="_blank" rel="noopener">
+                  <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" width="480" height="360" />
+                  <span class="play" aria-hidden="true">▶</span>
+                  <span class="t" dir="auto">{v.title}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <section id="follow" class="wrap">
+        <h2>Follow LumoLifts</h2>
+        <div class="follow">
+          <a class="card plat" href={site.links.youtube} target="_blank" rel="noopener">
+            <strong>YouTube</strong><span>@LumoLifts</span><em>Shorts every week</em>
+          </a>
+          <a class="card plat" href={site.links.tiktok} target="_blank" rel="noopener">
+            <strong>TikTok</strong><span>@lumolifts.urdu</span><em>Same reels, first</em>
+          </a>
+          <a class="card plat" href={site.links.facebook} target="_blank" rel="noopener">
+            <strong>Facebook</strong><span>LumoLifts</span><em>Quotes & reels</em>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap foot">
+      <span>© {new Date().getFullYear()} LumoLifts</span>
+      <a href={"mailto:" + site.email}>{site.email}</a>
+    </footer>
+
+    <script is:inline define:vars={{ quotes, url }}>
+      const day = Math.floor(Date.now() / 86400000);
+      let i = day % quotes.length;
+      const $ = (id) => document.getElementById(id);
+      function show(n) {
+        const q = quotes[n];
+        $("q-ur").textContent = q.ur;
+        $("q-roman").textContent = q.roman;
+        $("q-en").textContent = q.en;
+        $("q-wa").href = "https://wa.me/?text=" + encodeURIComponent(q.ur + "\n\n" + url);
+      }
+      show(i);
+      $("q-next").addEventListener("click", () => show((i = (i + 1) % quotes.length)));
+      $("q-copy").addEventListener("click", async (e) => {
+        const btn = e.currentTarget;
+        try {
+          await navigator.clipboard.writeText(quotes[i].ur + "\n— LumoLifts");
+          btn.textContent = "Copied ✓";
+        } catch {
+          btn.textContent = "Copy failed";
+        }
+        setTimeout(() => (btn.textContent = "Copy"), 1600);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --navy: #0a0e28;
+    --purple: #300a3e;
+    --gold: #ffc43d;
+    --orange: #f68034;
+    --text: #ffffff;
+    --muted: #cdcde6;
+    --card: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 255, 255, 0.14);
+    --btn-ink: #1a1230;
+    --ur: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+    --sans: "Montserrat", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    background: linear-gradient(160deg, var(--navy) 0%, #170c33 55%, var(--purple) 100%) fixed;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  .wrap { width: min(1040px, 100% - 32px); margin-inline: auto; }
+  .ur { font-family: var(--ur); line-height: 2.1; }
+
+  .glows { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+  .glows span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.35; animation: drift 24s ease-in-out infinite alternate; }
+  .glows span:nth-child(1) { width: 340px; height: 340px; background: var(--gold); top: 8%; left: 60%; opacity: 0.18; }
+  .glows span:nth-child(2) { width: 300px; height: 300px; background: #8c50ff; top: 45%; left: -6%; animation-delay: -6s; }
+  .glows span:nth-child(3) { width: 260px; height: 260px; background: #ff3c8c; top: 75%; left: 70%; opacity: 0.22; animation-delay: -12s; }
+  .glows span:nth-child(4) { width: 220px; height: 220px; background: #3cb4ff; top: 20%; left: 5%; opacity: 0.2; animation-delay: -3s; }
+  @keyframes drift { to { transform: translate(40px, -60px) scale(1.15); } }
+  @media (prefers-reduced-motion: reduce) { .glows span { animation: none; } html { scroll-behavior: auto; } }
+
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .wordmark { font-weight: 800; font-size: 22px; letter-spacing: -0.3px; }
+  .wordmark b { color: var(--gold); }
+  nav { display: flex; gap: 20px; font-weight: 600; font-size: 14px; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--gold); }
+
+  .hero { text-align: center; padding: 48px 0 64px; }
+  .mark { width: 160px; height: 160px; margin: 0 auto 8px; filter: drop-shadow(0 0 40px rgba(255, 196, 61, 0.35)); }
+  .mark img { width: 100%; height: 100%; }
+  .hero h1 { font-size: clamp(34px, 7vw, 60px); font-weight: 700; margin: 0; color: var(--gold); }
+  .lead { color: var(--muted); font-size: clamp(16px, 2.4vw, 19px); max-width: 560px; margin: 8px auto 28px; line-height: 1.6; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card); text-decoration: none; font-weight: 600; font-size: 15px;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .btn svg { width: 20px; height: 20px; fill: currentColor; }
+  .btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.12); }
+  .btn.primary { background: linear-gradient(180deg, #ffd66e, var(--gold)); color: var(--btn-ink); border: 0; box-shadow: 0 8px 30px rgba(255, 196, 61, 0.3); }
+  .btn.primary:hover { background: linear-gradient(180deg, #ffe08a, #ffcc55); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; backdrop-filter: blur(8px); }
+  .quote { position: relative; padding: 28px clamp(20px, 5vw, 48px); margin-bottom: 64px; overflow: hidden; text-align: center; }
+  .quote::after { content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: 6px; background: linear-gradient(var(--gold), var(--orange)); }
+  .label { margin: 0; color: var(--gold); font-weight: 600; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .label .ur { text-transform: none; font-size: 15px; }
+  blockquote { margin: 8px 0 20px; }
+  .big { font-size: clamp(24px, 4.6vw, 38px); font-weight: 700; margin: 0 0 4px; }
+  .roman { color: var(--muted); font-style: italic; margin: 0 0 6px; line-height: 1.5; }
+  .en { color: rgba(205, 205, 230, 0.75); margin: 0; font-size: 15px; line-height: 1.5; }
+  .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font: 600 14px var(--sans); color: var(--btn-ink); background: var(--gold); border: 0; border-radius: 999px;
+    padding: 10px 16px; cursor: pointer; text-decoration: none;
+  }
+  .chip.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .chip:hover { filter: brightness(1.08); }
+
+  h2 { font-size: 24px; font-weight: 800; margin: 0 0 18px; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; }
+  .more { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
+  #shorts { margin-bottom: 64px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .short { position: relative; display: block; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); text-decoration: none; background: #000; }
+  .short img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+  .short:hover img { transform: scale(1.05); }
+  .short::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(5, 5, 20, 0.92)); }
+  .play { position: absolute; top: 10px; right: 10px; z-index: 1; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--gold); color: var(--btn-ink); font-size: 12px; }
+  .t { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 1; font-size: 13px; font-weight: 600; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  #follow { margin-bottom: 56px; }
+  .follow { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .plat { display: flex; flex-direction: column; gap: 4px; padding: 22px; text-decoration: none; transition: transform 0.15s, border-color 0.15s; }
+  .plat:hover { transform: translateY(-3px); border-color: var(--gold); }
+  .plat strong { font-size: 18px; }
+  .plat span { color: var(--gold); font-weight: 600; }
+  .plat em { color: var(--muted); font-style: normal; font-size: 14px; }
+
+  .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 24px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  .foot a { color: var(--muted); }
+
+  @media (max-width: 560px) {
+    nav { gap: 14px; font-size: 13px; }
+    .wordmark { font-size: 19px; }
+    .hero { padding-top: 24px; }
+    .mark { width: 120px; height: 120px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
